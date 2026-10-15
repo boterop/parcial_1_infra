@@ -14,12 +14,14 @@
 ; SECCION DE DATOS  ->  el "tesoro" y los "diálogos" del héroe
 ; ------------------------------------------------------------
 section .data
-    titulo    db "LA LEYENDA DEL REGISTRO v0.1", 10      ; título del juego
+    titulo    db "MI GRAN AVENTURA v0.2", 10      ; título del juego
     len_titulo equ $ - titulo                             ; su longitud en bytes
-    mensaje   db "Bienvenido, heroe. Tu aventura empieza aqui.", 10
+    mensaje   db "Welcome to assembler hell 😈", 10
     len_mensaje equ $ - mensaje
-    adios     db "El sistema operativo te despidio con elegancia (código 0).", 10
+    adios     db "El sistema operativo te despidio con elegancia (código 7).", 10
     len_adios equ $ - adios
+    press_enter     db "Presiona enter para continuar...", 10
+    len_enter equ $ - press_enter
 
 ; ------------------------------------------------------------
 ; SECCION DE CODIGO  ->  las "acciones" que el héroe ejecuta
@@ -49,7 +51,20 @@ _start:
     mov rdx, len_adios
     syscall
 
+    ; ---------- Accion 4: presiona enter para continuar ----------
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, press_enter
+    mov rdx, len_enter
+    syscall
+
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, press_enter
+    mov rdx, len_enter
+    syscall
+
     ; ---------- Accion final: terminar el programa ----------
     mov rax, 60                   ; número de syscall: sys_exit (terminar)
-    mov rdi, 0                    ; código de salida 0 = todo salió bien
+    mov rdi, 7                    ; código de salida 0 = todo salió bien
     syscall                       ; el kernel termina el proceso. ¡Fin!

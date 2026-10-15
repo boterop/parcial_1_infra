@@ -73,9 +73,9 @@ La CPU de la VM tiene registros, memoria de **1 byte (8 bits)** cada uno:
 
 ```
 RAX  RBX  RCX  RDX  RSI  RDI  RBP  RSP
- 64 bits cada uno. La CPU "piensa" en 64 bits; nosotros empezamos
- usando solo los 32 de abajo (EAX, EBX, ...) porque los syscalls
- de 64 bits lo aceptan y evita el dolor de las bandas de 64.
+64 bits cada uno. La CPU "piensa" en 64 bits; nosotros empezamos
+usando solo los 32 de abajo (EAX, EBX, ...) porque los syscalls
+de 64 bits lo aceptan y evita el dolor de las bandas de 64.
 ```
 
 Los nombres no son arbitrarios:
@@ -83,10 +83,10 @@ Los nombres no son arbitrarios:
 - **RAX** — Accumulator. Resultado de la mayoría de operaciones.
 - **RDI, RSI, RDX, RCX, R8, R9** — Argumentos de funciones, en ese orden.
 - **RSP** — Stack Pointer: dónde termina la pila (el "estante" de memoria
-  que el programa usa para guardar datos temporales).
+que el programa usa para guardar datos temporales).
 - **RBP** — Base Pointer: referencia fija de la pila.
 - **RIP** — Instruction Pointer: la instrucción que se ejecuta AHORA.
-  Nadie lo escribe directamente; el enlazador lo mantiene.
+Nadie lo escribe directamente; el enlazador lo mantiene.
 
 ### 3.2 Syscalls: cómo se le habla al sistema operativo
 
@@ -120,7 +120,7 @@ Los dos syscalls de esta clase:
 
 ```
 SO crea el proceso → salta a _start (lo provee el enlazador/libc)
-  → tu código (main) → syscall 60 (exit) → SO recolecta el código de salida
+→ tu código (main) → syscall 60 (exit) → SO recolecta el código de salida
 ```
 
 `$?` en bash es exactamente ese código: `0` = éxito, `≠0` = error.
@@ -141,50 +141,55 @@ y se responde la pregunta "¿por qué está aquí?" antes de pasar.
 ; ============================================================
 
 section .data
-    titulo    db "LA LEYENDA DEL REGISTRO v0.1", 10
-    len_titulo equ $ - titulo
-    mensaje   db "Bienvenido, heroe. Tu aventura empieza aqui.", 10
-    len_mensaje equ $ - mensaje
-    adios     db "El sistema operativo te despidio con elegancia (código 0).", 10
-    len_adios equ $ - adios
+titulo    db "LA LEYENDA DEL REGISTRO v0.1", 10
+len_titulo equ $ - titulo
+mensaje   db "Bienvenido, heroe. Tu aventura empieza aqui.", 10
+len_mensaje equ $ - mensaje
+adios     db "El sistema operativo te despidio con elegancia (código 0).", 10
+len_adios equ $ - adios
 
 section .text
-    global _start
+global _start
 
 _start:
-    ; ---------- Accion 1: mostrar el titulo ----------
-    mov rax, 1                  ; syscall: sys_write (escribir)
-    mov rdi, 1                  ; fd 1 = stdout (la pantalla)
-    mov rsi, titulo             ; direccion del texto a imprimir
-    mov rdx, len_titulo         ; cuantos bytes escribir
-    syscall                     ; ¡llamada al kernel!
+; ---------- Accion 1: mostrar el titulo ----------
+mov rax, 1                  ; syscall: sys_write (escribir)
+mov rdi, 1                  ; fd 1 = stdout (la pantalla)
+mov rsi, titulo             ; direccion del texto a imprimir
+mov rdx, len_titulo         ; cuantos bytes escribir
+syscall                     ; ¡llamada al kernel!
 
-    ; ---------- Accion 2: mostrar la bienvenida ----------
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, mensaje
-    mov rdx, len_mensaje
-    syscall
+; ---------- Accion 2: mostrar la bienvenida ----------
+mov rax, 1
+mov rdi, 1
+mov rsi, mensaje
+mov rdx, len_mensaje
+syscall
 
-    ; ---------- Accion 3: despedirse ----------
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, adios
-    mov rdx, len_adios
-    syscall
+; ---------- Accion 3: despedirse ----------
+mov rax, 1
+mov rdi, 1
+mov rsi, adios
+mov rdx, len_adios
+syscall
 
-    ; ---------- Accion final: terminar ----------
-    mov rax, 60                 ; syscall: sys_exit (terminar)
-    mov rdi, 0                  ; codigo de salida 0 = exito
-    syscall
+; ---------- Accion final: terminar ----------
+mov rax, 60                 ; syscall: sys_exit (terminar)
+mov rdi, 0                  ; codigo de salida 0 = exito
+syscall
 ```
 
 **Preguntas guía durante la lectura** (haz que alguien responda antes de pasar):
 
 1. ¿Qué haría el kernel si `rdx` fuera mayor que la longitud real del texto?
+R/= Imprimiria el texto incompleto
 2. ¿Qué cambia entre la Acción 1 y la Acción 3? (Sólo `rsi` y `rdx`: el texto y su tamaño.)
+R/= Cambia espacio de memoria a usar, dando como resultado texto y tamaño distintos
 3. ¿Por qué `mov rax, 60` y no `mov rax, 1` en la última acción?
+R/= Porque rax = 1 significa "write" y no "exit", como queremos un exit "bonito" el codigo será 60
 4. ¿Qué pasaría si elimináramos la línea `syscall` final? (El proceso seguiría vivo, sin terminar.)
+R/= El proceso seguiría vivo, sin terminar.
+
 
 ---
 
@@ -291,6 +296,21 @@ Regla de oro de los retos: **cambiar un byte en el texto sin cambiar `rdx`
 rompe la salida.** El kernel escribe exactamente `rdx` bytes desde `rsi`.
 Si el texto es más largo, imprime basura extra; si es más corto, se corta.
 
+R/=
+```sh
+ubuntu@infra:~/Downloads/examen/clase-01$ ./compilar.sh 
+== Ensamblando (traduciendo asm -> binario) ==
+== Enlazando (creando el ejecutable) ==
+== Ejecutando ==
+MI GRAN AVENTURA v0.2
+Welcome to assembler hell 😈
+El sistema operativo te despidio con elegancia (código 7).
+Presiona enter para continuar...
+Presiona enter para continuar...
+ubuntu@infra:~/Downloads/examen/clase-01$ echo $?
+7
+```
+
 ---
 
 ## 8. Lo que viene (clase 2)
@@ -309,16 +329,16 @@ El héroe deja de ser un hablante y se convierte en un oyente.
 
 ## 9. Checklist de salida de la clase 1
 
-- [ ] Puedo decir qué hace cada registro (`rax, rdi, rsi, rdx`) en `sys_write`.
-- [ ] Sé que `syscall` es la "puerta" al kernel y `rax` el número de acción.
-- [ ] Diferencié `.data` (texto fijo) de `.text` (instrucciones).
-- [ ] Entendí `equ $ - etiqueta` como "medir la distancia" en bytes.
-- [ ] Corrí `./compilar.sh` y vi la salida completa con `código 0`.
-- [ ] Usé `objdump -d` y conté las 4 llamadas `syscall`.
-- [ ] Usé `strace` y vi los 3 `write` + el `exit_group(0)`.
-- [ ] Verifiqué `echo $?` = `0`.
-- [ ] Completé al menos R1 y R3.
-- [ ] Puedo explicar, sin mirar, por qué la despedida mide 60 bytes.
+- [x] Puedo decir qué hace cada registro (`rax, rdi, rsi, rdx`) en `sys_write`.
+- [x] Sé que `syscall` es la "puerta" al kernel y `rax` el número de acción.
+- [x] Diferencié `.data` (texto fijo) de `.text` (instrucciones).
+- [x] Entendí `equ $ - etiqueta` como "medir la distancia" en bytes.
+- [x] Corrí `./compilar.sh` y vi la salida completa con `código 0`.
+- [x] Usé `objdump -d` y conté las 4 llamadas `syscall`.
+- [x] Usé `strace` y vi los 3 `write` + el `exit_group(0)`.
+- [x] Verifiqué `echo $?` = `0`.
+- [x] Completé al menos R1 y R3.
+- [x] Puedo explicar, sin mirar, por qué la despedida mide 60 bytes.
 
 **Fin de la clase 1.** El héroe ha despertado, ha hablado y ha sido despedido
 con elegancia por el sistema operativo. En clase 2 aprenderá a escuchar.
