@@ -46,6 +46,9 @@ Ejecuta `strace -e trace=write,exit_group ./clase01 2> trace1.txt` y responde (p
 
 [RESOLVER AQUÍ: ]
 
+1. Hay 5 llamadas a `write` en total.
+2. El codigo de salida del exit_group es 7.
+3. El numero de syscall que usa write es 1.
 ---
 
 ## A.2 — El nombre del héroe (Clase 2) — 15 pts

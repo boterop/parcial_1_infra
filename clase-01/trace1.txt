@@ -1,0 +1,6 @@
+write(1, "MI GRAN AVENTURA v0.2\n", 22) = 22
+write(1, "Welcome to assembler hell \360\237\230\210\n", 31) = 31
+write(1, "El sistema operativo te despidio"..., 60) = 60
+write(1, "Presiona enter para continuar..."..., 33) = 33
+write(1, "Presiona enter para continuar..."..., 33) = 33
++++ exited with 7 +++
