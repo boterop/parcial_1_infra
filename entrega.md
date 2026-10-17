@@ -41,3 +41,58 @@ write(1, "Presiona enter para continuar..."..., 33) = 33
 1. Hay 5 llamadas a `write` en total.
 2. El codigo de salida del exit_group es 7.
 3. El numero de syscall que usa write es 1.
+### A.4
+> heroe.asm
+```asm
+section .data
+  input_title db "Nombre: "
+  input_title_len equ $ - input_title
+
+  newline db 10
+  newline_len equ $ - newline
+
+  name_len equ 16
+section .bss
+  name resb name_len
+section .text
+  global _start
+_start:
+  mov rax, 1
+  mov rdi, 1
+  mov rsi, input_title
+  mov rdx, input_title_len
+  syscall
+
+  mov rax, 0
+  mov rdi, 0
+  mov rsi, name
+  mov rdx, name_len
+  syscall
+
+  mov rax, 1
+  mov rdi, 1
+  mov rsi, name
+  mov rdx, name_len
+  syscall
+
+  ; Como el name fue ingresado por consola ya tiene salto de linea
+  ; Pero voy a imprimir otro para completar el punto 4
+  mov rax, 1
+  mov rdi, 1
+  mov rsi, newline
+  mov rdx, newline_len
+  syscall
+
+  mov rax, 60
+  mov rdi, 0
+  syscall
+```
+
+Salida
+```sh
+ubuntu@infra:~/Downloads/examen/examen$ ./build.sh 
+Nombre: Sauron
+Sauron
+
+ubuntu@infra:~/Downloads/examen/examen$ 
+```
