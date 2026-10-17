@@ -155,6 +155,8 @@ Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo 
 
 [RESOLVER AQUÍ: ]
 
+R/= b) 1
+
 ---
 
 **2.** ¿En qué registro se pone el **número de syscall** antes de ejecutar `syscall`?
@@ -165,6 +167,8 @@ Compílalo con `nasm -f elf64` y `ld`. Pega en `entrega.md` el código completo 
 - d) `rdx`
 
 [RESOLVER AQUÍ: ]
+
+R/= c) `rax`
 
 ---
 
