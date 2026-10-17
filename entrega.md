@@ -42,9 +42,7 @@ write(1, "Presiona enter para continuar..."..., 33) = 33
 2. El codigo de salida del exit_group es 7.
 3. El numero de syscall que usa write es 1.
 ### A.4
-Codigo
-<details>
-<summary>Haz clic aquí para ver el heroe.asm</summary>
+> heroe.asm
 ```asm
 section .data
   input_title db "Nombre: "
@@ -89,7 +87,6 @@ _start:
   mov rdi, 0
   syscall
 ```
-</details>
 
 Salida
 ```sh
