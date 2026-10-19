@@ -64,6 +64,35 @@ Documenta la salida de cada caso en `entrega.md`.
 
 [RESOLVER AQUÍ: ¿Qué ocurre en el caso 3? Explica por qué, citando qué línea del `.asm` lo provoca.]
 
+RESPUESTA:
+1.LA LEYENDA DEL REGISTRO v0.2
+Como se llama el heroe? (max 31 letras)
+max
+Bienvenido al reino, max
+Tu nombre ya vive en la memoria del proceso.
+== Codigo de salida: 0 ==
+
+2.LA LEYENDA DEL REGISTRO v0.2
+Como se llama el heroe? (max 31 letras)
+AAEEAEEAAKSJDNAKJDHDAJSLDJALFSK
+Bienvenido al reino, AAEEAEEAAKSJDNAKJDHDAJSLDJALFSK
+Tu nombre ya vive en la memoria del proceso.
+== Codigo de salida: 0 ==
+
+3.LA LEYENDA DEL REGISTRO v0.2
+Como se llama el heroe? (max 31 letras)
+SAKJHSFKASHFQWHRKQHSDKAUHASFHBQWUASUDFGQ
+Bienvenido al reino, SAKJHSFKASHFQWHRKQHSDKAUHASFHBQW
+Tu nombre ya vive en la memoria del proceso.
+== Codigo de salida: 0 ==
+camilo@LAPTOP-6LLT5M0D:~/ensamblador-rpg (Copiar)/clase-02$ UASUDFGQ
+UASUDFGQ: command not found
+
+El error sucede debido a que se establecio un limite máximo de 32 bytes pero cuando los caracteres 
+sobrepasan este limite, el sistema lee los primero 32 caracteres y los que sobran los deja en la entrada 
+del terminal para que al final de la ejecucion del programa, vuelva y ejecute los que sobraron en la terminal 
+dando el error command not found 
+
 ### A.2.2 (5 pts)
 Ejecuta `strace -e trace=read,write ./clase02` con un nombre de 10 letras (pega el `strace` en `entrega.md`) y responde:
 
@@ -73,6 +102,14 @@ Ejecuta `strace -e trace=read,write ./clase02` con un nombre de 10 letras (pega 
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA:
+
+1.Devuelve 11 bytes, las 10 letras del nombre y una mas por el salto de linea
+
+2.Porque el 'read' devuelve la cantidad de bytes ingresados, no la capacidad maxima definida por el buffer
+
+3.Se guarda en la variable 'lon', la cual almacena el valor de RAX devuelto por el syscall
+ 
 ### A.2.3 (5 pts) — Modificación obligatoria
 En tu copia de `clase02.asm`, cambia **dos** cosas y haz que siga compilando y ejecutando:
 
@@ -81,6 +118,26 @@ En tu copia de `clase02.asm`, cambia **dos** cosas y haz que siga compilando y e
 
 Pega en `entrega.md` el bloque `.data` modificado y la salida de tu programa con el nombre `Gandalf`.
 
+RESPUESTA:
+
+1)
+    section .data
+    titulo    db "LA LEYENDA DEL REGISTRO v0.2", 10
+    len_titulo equ $ - titulo
+    pregunta  db "Como se llama el heroe? (max 31 letras)", 10
+    len_pregunta equ $ - pregunta
+    saludo   db "Bienvenido al reino extraordinoario heroe, "
+    len_saludo equ $ - saludo
+    despedida db "Tu historia esta a punto de comenzar", 10
+    len_despedida equ $ - despedida
+    salto     db 10                                    ; un salto de linea suelto
+
+2)LA LEYENDA DEL REGISTRO v0.2
+Como se llama el heroe? (max 31 letras)
+gandalf
+Bienvenido al reino extraordinoario heroe, gandalf
+Tu historia esta a punto de comenzar
+== Codigo de salida: 0 ==
 ---
 
 ## A.3 — Los atributos del héroe (Clase 3) — 20 pts
@@ -261,6 +318,14 @@ _start:
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA: 
+1)Imprime el texto "HOLA"
+
+2)La salida termina con el rdi = 3
+cuando el rdi es diferente de 0 significa que se va a enviar un retorno personalizado para indicar alguna condicion
+
+3)el primer llamado al kernel se hace cuando el rax = 1 y se usa para imprimir el mensaje en la pantalla, 
+el segundo llamado ocurre cuando el rax = 60 eso significa que a finalizado la ejecucion del programa
 ---
 
 ## B.4 — Encuentra el error (4 pts)
@@ -292,6 +357,20 @@ _start:
 > imprimible?
 
 [RESOLVER AQUÍ: ]
+
+RESPUESTA: 
+
+El codigo guarda en la mempria el numero 7, caracter que no ees imprimible en la tabla ASCII
+por eso no lo imprime, para que se vea en pantalla se debe convertir el 7 a su representacion en ASCII,
+para esto se debe sumarle el numero 0 el cual equivale al 48 en decimal, 7+48 = 55 y 55 en ASCII es el numero 7 
+
+la instruccion que faltaba era add al, '0' o add al, 48 
+  mov al, 7          ; el número a imprimir
+  add al, '0'	     ; convierte el entero 7 al carácter ASCII '7'
+  mov [d], al        ; guardar el carácter
+
+El byte que esta guardando 'd' es el valor numerico 7
+la instruccion que falta como mencione anteriormente es el add al, '0' el cual convierte al 7 al ASCII para mostrarlo en pantalla
 
 ---
 
