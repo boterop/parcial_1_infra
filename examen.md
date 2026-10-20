@@ -147,15 +147,23 @@ Compila la clase 3 y ejecútala con las **cinco** combinaciones de (FUE, AGI) de
 
 | Caso | FUE | AGI | ¿ELITE o NOVATO o ERROR? | Código salida (`$?`) |
 |------|-----|-----|--------------------------|----------------------|
-| 1    | 3   | 5   |                          |                      |
-| 2    | 0   | 9   |                          |                      |
-| 3    | 9   | 9   |                          |                      |
-| 4    | 0   | 0   |                          |                      |
-| 5    | `x` | 5   |                          |                      |
+| 1    | 3   | 5   |       NOVATO             |           0          |
+| 2    | 0   | 9   |       ELITE              |           0          |
+| 3    | 9   | 9   |       ERRROR             |           1          |
+| 4    | 0   | 0   |       NOVATO             |           0          |
+| 5    | `x` | 5   |       NOVATO             |           0          |
 
 > Caso 5: en lugar de un dígito, escribe la letra `x`.
 
 [RESOLVER AQUÍ: ¿Qué hace el programa con la letra `x`? ¿Por qué no se rompe?]
+
+RESPUESTA: 
+
+Al detectar un carácter que no es un número válido entre '0' y '9', el bloque de validación 
+activa la etiqueta .fue_vacio y le asigna automáticamente el valor 0 a la fuerza (v_fue = 0).
+Y no se rompe  Porque el código incluye una validación con instrucciones cmp 
+(comparando contra los valores ASCII 48 y 57 de los dígitos) que atrapa cualquier 
+entrada extraña o vacía y la reemplaza por un cero por defecto, evitando fallos de ejecución.
 
 ### A.3.2 (6 pts)
 Con `strace -e trace=write,read,exit_group ./clase03`, usando FUE=8, AGI=2 (pega el `strace` en `entrega.md`), responde:
@@ -166,6 +174,20 @@ Con `strace -e trace=write,read,exit_group ./clase03`, usando FUE=8, AGI=2 (pega
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA:
+
+¿Cuántas llamadas write hay y qué texto escribe cada una?
+Hay 7 llamadas write en total (las 2 introductorias de los textos del juego, 
+las 2 preguntas pidiendo FUE y AGI, la de error o resultado final, y la impresión de los atributos detallados).
+
+¿Cuántas llamadas read hay?
+Hay 2 llamadas read (una para capturar el valor de FUE y otra para capturar el valor de AGI).
+
+¿Por qué read devuelve siempre 2 y no 1?
+Porque cuando presionas la tecla de un número (por ejemplo, el 8) y luego presionas la tecla Enter, 
+el teclado envía a la terminal dos caracteres: el carácter del número en sí (8) y el carácter de salto de línea 
+(\n o Enter), ocupando un total de 2 bytes en el búfer de lectura.
+
 ### A.3.3 (6 pts) — Modificación obligatoria
 Implementa el **Ejercicio 1** de la clase 3 ("El heroe se enfada"): si FUE es 0, muestra la frase
 `"Un heroe sin fuerza no es heroe."` y sigue el flujo normal.
@@ -175,6 +197,32 @@ Requisitos:
 - Usa `cmp byte [v_fue], 0` y un salto `je` a un bloque nuevo `.sin_fuerza`.
 - El programa debe seguir imprimiendo el bloque de atributos y terminar con código 0.
 - Pega en `entrega.md` las líneas que agregaste y la salida completa con FUE=0, AGI=3.
+
+RESPUESTA:
+
+sin_fuerza db "Un heroe sin fuerza no es heroe.", 10
+len_sin_fuerza equ $ - sin_fuerza
+cmp byte [v_fue], 0
+jne .con_fuerza
+mov rax, 1
+mov rdi, 1
+mov rsi, sin_fuerza
+mov rdx, len_sin_fuerza
+syscall
+.con_fuerza:
+
+LA LEYENDA DEL REGISTRO v0.3
+Tienes 9 puntos para repartir. El resto se vuelve vida (VID).
+FUE (fuerza, 0 a 9): 0
+Un heroe sin fuerza no es heroe.
+AGI (agilidad, 0 a 9) : 9
+El heroe despierta como ELITE del reino.
+FUE: 0
+AGI: 9
+VID: 0
+Puntos gastados: 9
+Nivel: 2
+Los atributos quedaron grabados en los registros del heroe.
 
 ---
 
@@ -380,24 +428,40 @@ la instruccion que falta como mencione anteriormente es el add al, '0' el cual c
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA:
+Porque al presionar la tecla Enter en el teclado se envía un carácter adicional de salto de línea 
+(LF o código ASCII 10). Por lo tanto, los 32 bytes de espacio reservado permiten almacenar hasta 31 caracteres
+del nombre + 1 byte para el salto de línea final capturado por sys_read.
 ---
 
 **2.** ¿Por qué la clase 2 quita el último byte (LF) del nombre antes de imprimirlo, usando `dec rax`?
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA:
+Porque sys_read incluye el salto de línea (10) en el buffer y devuelve en rax el conteo total de bytes leídos. 
+Al restar 1 a rax con dec rax, se reduce la longitud a imprimir para excluir el LF y evitar que el texto en 
+pantalla dé un salto de línea involuntario antes de completar el mensaje de saludo.
 ---
 
 **3.** En clase 3, ¿por qué el programa valida FUE y AGI por separado (0–9) **y además** valida que la suma sea ≤ 9?
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA:
+Se realiza en dos etapas: primero valida que cada entrada sea un dígito único individual dentro del rango ASCII '0' (48) a '9' (57)
+para garantizar la integridad del formato de lectura. Luego valida que la suma acumulada de puntos gastados 
+no supere 9 para garantizar la regla de negocio del juego (el límite total de puntos a repartir entre atributos)
 ---
 
 **4.** ¿Qué significa `equ $ - etiqueta` y por qué es útil en vez de contar los bytes a mano?
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA:
+El símbolo $ representa la dirección de memoria actual. La expresión calcula la diferencia de memoria desde el inicio de la etiqueta
+hasta el punto actual, obteniendo la longitud exacta en bytes de la cadena. Es útil porque automatiza el cálculo de tamaño, 
+evitando errores manuales y recalculando la longitud automáticamente si la cadena de texto cambia en el futuro.
 ---
 
 ## B.6 — Escribe el código (5 pts)
@@ -407,6 +471,12 @@ la instruccion que falta como mencione anteriormente es el add al, '0' el cual c
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA:
+mov rax, 1          ; System call 1 = sys_write
+    mov rdi, 1          ; File descriptor 1 = stdout (pantalla)
+    mov rsi, fin        ; Puntero al mensaje "FIN\n"
+    mov rdx, len_fin    ; Longitud del mensaje
+    syscall             ; Llamada al kernel de Linux
 ---
 
 **2. (3 pts)** Escribe las líneas de ensamblador para:
@@ -417,6 +487,24 @@ la instruccion que falta como mencione anteriormente es el add al, '0' el cual c
 
 [RESOLVER AQUÍ: ]
 
+RESPUESTA:
+; 1. Leer hasta 2 bytes desde el teclado
+    mov rax, 0          
+    mov rdi, 0         
+    mov rsi, b         
+    mov rdx, 2          
+    syscall
+
+    ; 2. Validar que sea un dígito entre '0' (48) y '9' (57)
+    cmp byte [b], 48    
+    jb .mal             ; Si es menor que 48, saltar a .mal
+    cmp byte [b], 57  
+    ja .mal             ; Si es mayor que 57, saltar a .mal
+
+    ; 3. Convertir a entero (restar 48) y guardar en variable n
+    mov al, byte [b]   
+    sub al, 48         
+    mov [n], al
 ---
 
 # RÚBRICA DE CALIFICACIÓN
